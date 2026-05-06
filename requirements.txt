@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+supabase
+python-dotenv
+pytest
+httpx
+email-validator
+google-generativeai
+groq
