@@ -1,58 +1,54 @@
 import os
 from groq import Groq
 from dotenv import load_dotenv
+from app.services.supabase_service import supabase
 
 load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-FORMULES = {
-    "Essentiel": """
-        1 opérateur, de la cérémonie à la pièce montée, en photo ET vidéo.
-        Tarif : 1 200€.
-        Rendus : 200 photos retouchées + film d'environ 10 min.
-        Options disponibles : drone (+100€), projection (+200€), frais de déplacement IDF (+50€ si trajets longs).
-    """,
-    "Signature": """
-        2 opérateurs, des préparatifs à la pièce montée, en photo ET vidéo.
-        Tarif : 1 500€. Présence du portraitiste offerte.
-        Rendus : 600 photos retouchées + teaser + film 4K d'1 heure.
-        Options disponibles : drone (+100€), projection (+200€), frais de déplacement IDF (+50€ si trajets longs).
-    """,
-    "Prestige": """
-        Équipe complète : 1 vidéaste, 1 photographe, 2 portraitistes.
-        Inclus : projection pendant la réception, toile des mariés, portraits des invités, drone offert.
-        Tarif : 2 500€.
-        Rendus : album photos 100 photos + 800 photos retouchées + teaser + film 4K d'1 heure + film sur clé USB.
-        Options disponibles : frais de déplacement IDF (+50€ si trajets longs).
-    """,
-    "Sur mesure": """
-        Formule entièrement personnalisée selon les besoins des mariés.
-        Tarif et prestations à définir ensemble lors d'un premier échange.
-        Options disponibles : drone (+100€), projection (+200€), frais de déplacement IDF (+50€ si trajets longs).
-    """
-}
+def get_formules():
+    """Récupère toutes les formules depuis Supabase"""
+    response = supabase.table("formules").select("*").execute()
+    return response.data
+
+def get_formule(nom: str):
+    """Récupère une formule spécifique depuis Supabase"""
+    response = supabase.table("formules").select("*").eq("nom", nom).execute()
+    if response.data:
+        return response.data[0]
+    return None
 
 def generer_reponse_email(lead: dict) -> str:
     """Génère un brouillon d'email de réponse pour un lead"""
 
-    formule = lead.get('formule', 'non précisée')
-    detail_formule = FORMULES.get(formule, "Formule à définir ensemble")
+    formule_nom = lead.get('formule', 'non précisée')
+    formule = get_formule(formule_nom)
+    formules = get_formules()
+
+    # Construit le contexte des formules pour l'IA
+    contexte_formules = "\n".join([
+        f"- {f['nom']} : {f['description']} | Tarif : {f['tarif']}€ | Rendus : {f['rendus']} | Options : {f['options']}"
+        for f in formules
+    ])
+
+    # Détail de la formule choisie
+    if formule:
+        detail = f"{formule['description']} | Tarif : {formule['tarif']}€ | Rendus : {formule['rendus']}"
+    else:
+        detail = "Formule à définir ensemble"
 
     prompt = f"""
     Tu es l'assistant de BeckFocus Production, photographe/vidéaste spécialisé mariages.
     
     Voici les formules disponibles :
-    - Essentiel : {FORMULES['Essentiel']}
-    - Signature : {FORMULES['Signature']}
-    - Prestige : {FORMULES['Prestige']}
-    - Sur mesure : {FORMULES['Sur mesure']}
+    {contexte_formules}
     
     Nouvelle demande reçue :
     - Nom : {lead.get('nom')}
     - Email : {lead.get('email')}
     - Date du mariage : {lead.get('date_evenement', 'non précisée')}
-    - Formule souhaitée : {formule} → {detail_formule}
+    - Formule souhaitée : {formule_nom} → {detail}
     - Message : {lead.get('message')}
     
     Rédige un email de réponse professionnel et chaleureux en français.
