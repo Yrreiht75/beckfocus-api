@@ -93,14 +93,15 @@ def test_get_leads_sans_token():
 def test_get_leads_avec_token():
     """Vérifie que GET /leads est accessible avec un token valide"""
     from app.services.auth_service import create_access_token
+    from unittest.mock import patch
 
-    # Crée un token directement sans passer par le login
     token = create_access_token(data={"sub": "beck"})
 
-    with TestClient(app) as persistent_client:
-        # Injecte le cookie manuellement
-        persistent_client.cookies.set("access_token", token)
+    with patch("app.services.supabase_service.get_all_leads") as mock_leads:
+        mock_leads.return_value = []
 
-        response = persistent_client.get("/leads/")
-        assert response.status_code == 200
-        assert "leads" in response.json()
+        with TestClient(app) as persistent_client:
+            persistent_client.cookies.set("access_token", token)
+            response = persistent_client.get("/leads/")
+            assert response.status_code == 200
+            assert "leads" in response.json()
