@@ -97,7 +97,7 @@ def test_get_leads_avec_token():
 
     token = create_access_token(data={"sub": "beck"})
 
-    with patch("app.services.supabase_service.get_all_leads") as mock_leads:
+    with patch("app.routes.leads.get_all_leads") as mock_leads:
         mock_leads.return_value = []
 
         with TestClient(app) as persistent_client:
