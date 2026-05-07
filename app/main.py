@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import leads, auth
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.routes import leads, auth, dashboard
+from app.routes import leads, auth, dashboard, webhooks
 
 app = FastAPI(
     title="BeckFocus API",
@@ -22,6 +19,7 @@ app.add_middleware(
 app.include_router(leads.router, prefix="/leads", tags=["leads"])
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+app.include_router(webhooks.router, prefix="/webhooks", tags=["webhooks"])
 
 @app.get("/")
 def root():
