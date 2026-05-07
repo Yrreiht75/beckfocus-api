@@ -1,5 +1,6 @@
 import os
 import resend
+from urllib.parse import quote
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,6 +9,10 @@ resend.api_key = os.getenv("RESEND_API_KEY")
 
 def envoyer_brouillon_email(lead: dict, reponse_ia: str):
     try:
+        mailto_body = quote(reponse_ia)
+        mailto_subject = quote("Re: Votre demande BeckFocus Production")
+        mailto_link = f"mailto:{lead.get('email')}?subject={mailto_subject}&body={mailto_body}"
+
         params = {
             "from": "BeckFocus Production <contact@beckfocus.fr>",
             "to": ["contact@beckfocus.fr"],
@@ -23,12 +28,19 @@ def envoyer_brouillon_email(lead: dict, reponse_ia: str):
                     <tr><td style="padding: 8px; background: #f5f5f5;"><strong>Formule</strong></td><td style="padding: 8px;">{lead.get('formule', 'Non renseignée')}</td></tr>
                     <tr><td style="padding: 8px; background: #f5f5f5;"><strong>Message</strong></td><td style="padding: 8px;">{lead.get('message')}</td></tr>
                 </table>
+
                 <h3 style="color: #333;">✉️ Brouillon de réponse généré par l'IA</h3>
                 <div style="background: #f9f9f9; padding: 20px; border-left: 4px solid #d4a853; white-space: pre-line;">
                     {reponse_ia}
                 </div>
+
+                <a href="{mailto_link}"
+                   style="display:inline-block;background:#d4a853;color:#000;padding:14px 28px;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;margin-top:20px;border-radius:4px;">
+                    ✉️ Répondre au client
+                </a>
+
                 <p style="color: #999; font-size: 12px; margin-top: 20px;">
-                    Copiez ce brouillon, modifiez-le si besoin et répondez directement au client.
+                    Cliquez sur le bouton pour ouvrir votre boite mail avec la réponse pré-remplie.
                 </p>
             </div>
             """
