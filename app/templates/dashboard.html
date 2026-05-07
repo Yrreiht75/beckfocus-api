@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeckFocus — Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0E0D0B;
+            font-family: sans-serif;
+            color: #FAF8F5;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #1A1714;
+            border-bottom: 1px solid rgba(212,184,150,0.2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 10px;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: #D4B896;
+        }
+
+        .logout {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(212,184,150,0.6);
+            text-decoration: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #D4B896;
+        }
+
+        .logout:hover { color: #FAF8F5; }
+
+        main { padding: 40px; }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 300;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: rgba(250,248,245,0.4);
+            margin-bottom: 40px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: #1A1714;
+            border: 1px solid rgba(212,184,150,0.15);
+            padding: 24px;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(212,184,150,0.6);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 300;
+            color: #D4B896;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1A1714;
+            border: 1px solid rgba(212,184,150,0.15);
+        }
+
+        th {
+            font-size: 9px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(212,184,150,0.6);
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(212,184,150,0.15);
+        }
+
+        td {
+            padding: 16px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(212,184,150,0.08);
+            vertical-align: top;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(212,184,150,0.04); }
+
+        .statut {
+            display: inline-block;
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 2px;
+        }
+
+        .statut-nouveau    { background: rgba(52,152,219,0.2);  color: #3498db; }
+        .statut-en-cours   { background: rgba(241,196,15,0.2);  color: #f1c40f; }
+        .statut-répondu    { background: rgba(46,204,113,0.2);  color: #2ecc71; }
+        .statut-converti   { background: rgba(212,184,150,0.2); color: #D4B896; }
+        .statut-annulé     { background: rgba(192,57,43,0.2);   color: #e74c3c; }
+
+        select {
+            background: #0E0D0B;
+            border: 1px solid rgba(212,184,150,0.3);
+            color: #FAF8F5;
+            padding: 6px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        select:focus { border-color: #D4B896; }
+
+        .message-preview {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: rgba(250,248,245,0.5);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <span class="brand">BeckFocus Production — Dashboard</span>
+    <form method="POST" action="/auth/logout" style="display:inline">
+        <button type="submit" class="logout">Déconnexion →</button>
+    </form>
+</header>
+
+<main>
+    <h1>Bonjour, {{ user }} 👋</h1>
+    <p class="subtitle">{{ leads|length }} demande(s) au total</p>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-label">Nouveaux</div>
+            <div class="stat-value">{{ leads|selectattr("statut", "equalto", "nouveau")|list|length }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">En cours</div>
+            <div class="stat-value">{{ leads|selectattr("statut", "equalto", "en cours")|list|length }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Répondus</div>
+            <div class="stat-value">{{ leads|selectattr("statut", "equalto", "répondu")|list|length }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Convertis</div>
+            <div class="stat-value">{{ leads|selectattr("statut", "equalto", "converti")|list|length }}</div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Date mariage</th>
+                <th>Formule</th>
+                <th>Message</th>
+                <th>Statut</th>
+                <th>Reçu le</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lead in leads %}
+            <tr>
+                <td style="color: rgba(250,248,245,0.3);">{{ lead.id }}</td>
+                <td><strong>{{ lead.nom }}</strong></td>
+                <td>
+                    <a href="mailto:{{ lead.email }}"
+                       style="color: #D4B896; text-decoration: none;">
+                        {{ lead.email }}
+                    </a>
+                </td>
+                <td>{{ lead.date_evenement or "—" }}</td>
+                <td>{{ lead.formule or "—" }}</td>
+                <td>
+                    <div class="message-preview" title="{{ lead.message }}">
+                        {{ lead.message }}
+                    </div>
+                </td>
+                <td>
+                    <select onchange="updateStatut({{ lead.id }}, this.value)">
+                        <option value="nouveau"   {% if lead.statut == 'nouveau'   %}selected{% endif %}>Nouveau</option>
+                        <option value="en cours"  {% if lead.statut == 'en cours'  %}selected{% endif %}>En cours</option>
+                        <option value="répondu"   {% if lead.statut == 'répondu'   %}selected{% endif %}>Répondu</option>
+                        <option value="converti"  {% if lead.statut == 'converti'  %}selected{% endif %}>Converti</option>
+                        <option value="annulé"    {% if lead.statut == 'annulé'    %}selected{% endif %}>Annulé</option>
+                    </select>
+                </td>
+                <td style="color: rgba(250,248,245,0.4); font-size: 11px;">
+                    {{ lead.created_at[:10] if lead.created_at else "—" }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
+
+<script>
+async function updateStatut(leadId, statut) {
+    try {
+        const response = await fetch(`/leads/${leadId}/statut`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ statut: statut })
+        });
+        if (!response.ok) throw new Error('Erreur');
+        console.log(`✅ Lead ${leadId} → ${statut}`);
+    } catch (err) {
+        alert('Erreur lors de la mise à jour du statut');
+        console.error(err);
+    }
+}
+</script>
+
+</body>
+</html>

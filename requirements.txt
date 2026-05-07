@@ -8,3 +8,7 @@ email-validator
 google-generativeai
 groq
 resend
+python-jose[cryptography]
+passlib[bcrypt]
+jinja2
+python-multipart

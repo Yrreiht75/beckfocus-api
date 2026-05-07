@@ -16,3 +16,9 @@ def save_lead(lead_data: dict):
 def get_all_leads():
     response = supabase.table("leads").select("*").execute()
     return response.data
+
+def update_lead_statut(lead_id: int, statut: str):
+    response = supabase.table("leads").update(
+        {"statut": statut}
+    ).eq("id", lead_id).execute()
+    return response.data
