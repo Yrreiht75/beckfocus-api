@@ -1,6 +1,3 @@
-Voici le README complet et documenté. Remplace tout le contenu de README.md :
-markdown
-
 # BeckFocus API 🎥
 
 API de gestion de leads mariage pour **BeckFocus Production**, studio de photographie et vidéographie basé à Paris et Île-de-France.
