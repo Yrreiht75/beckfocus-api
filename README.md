@@ -102,37 +102,33 @@ Hébergement de l'API avec déploiement automatique depuis GitHub. Choisi pour l
 
 ## 📦 Structure du projet
 
+## 📦 Structure du projet
+
+```
 beckfocus-api/
-├── .github/
-│   └── workflows/
-│       └── ci.yml          # Pipeline CI/CD GitHub Actions
+├── .github/workflows/ci.yml    # Pipeline CI/CD GitHub Actions
 ├── app/
-│   ├── main.py             # Configuration FastAPI + middlewares
-│   ├── dependencies.py     # Vérification JWT (Depends)
-│   ├── models/
-│   │   └── lead.py         # Modèles Pydantic (validation)
+│   ├── main.py                 # Configuration FastAPI + middlewares
+│   ├── dependencies.py         # Vérification JWT
+│   ├── models/lead.py          # Modèles Pydantic
 │   ├── routes/
-│   │   ├── leads.py        # Endpoints leads
-│   │   ├── auth.py         # Endpoints authentification
-│   │   ├── dashboard.py    # Dashboard HTML
-│   │   └── webhooks.py     # Webhook Instagram
+│   │   ├── leads.py            # Endpoints leads
+│   │   ├── auth.py             # Authentification
+│   │   ├── dashboard.py        # Dashboard HTML
+│   │   └── webhooks.py         # Webhook Instagram
 │   ├── services/
-│   │   ├── supabase_service.py  # CRUD base de données
-│   │   ├── ia_service.py        # Génération IA (Groq)
-│   │   ├── email_service.py     # Envoi emails (Resend)
-│   │   └── auth_service.py      # JWT + hachage
+│   │   ├── supabase_service.py # CRUD base de données
+│   │   ├── ia_service.py       # Génération IA (Groq)
+│   │   ├── email_service.py    # Envoi emails (Resend)
+│   │   └── auth_service.py     # JWT + hachage
 │   └── templates/
-│       ├── login.html      # Page de connexion
-│       └── dashboard.html  # Dashboard leads
-├── tests/
-│   └── test_leads.py       # Tests unitaires (pytest)
-├── Dockerfile              # Image Docker
-├── docker-compose.yml      # Orchestration locale
-├── requirements.txt        # Dépendances Python
-├── .env.example            # Template variables d'environnement
-└── README.md
-
-
+│       ├── login.html          # Page de connexion
+│       └── dashboard.html      # Dashboard leads
+├── tests/test_leads.py         # Tests unitaires (pytest)
+├── Dockerfile                  # Image Docker
+├── requirements.txt            # Dépendances Python
+└── .env.example                # Template variables d'environnement
+```
 ---
 
 ## 🚀 Installation
