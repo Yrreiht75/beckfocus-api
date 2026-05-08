@@ -25,7 +25,7 @@ BeckFocus Production reçoit des demandes de clients via plusieurs canaux (formu
 
 | Service | URL |
 |---------|-----|
-| API | https://api.beckfocus.fr |
+| API.    | https://api.beckfocus.fr |
 | Documentation interactive | https://api.beckfocus.fr/docs |
 | Dashboard admin | https://api.beckfocus.fr/dashboard |
 
@@ -33,75 +33,33 @@ BeckFocus Production reçoit des demandes de clients via plusieurs canaux (formu
 
 ## 🔄 Flux complet d'une demande client
 
-    Client remplit le formulaire sur beckfocus.fr ou envoie un DM Instagram ↓
-    Le formulaire envoie au Worker Cloudflare ↓
-    Worker envoie :
-        Email de notification à contact@beckfocus.fr
-        Email de confirmation au client
-        Appel à l'API BeckFocus ↓
-    L'API reçoit la demande ↓
-    Sauvegarde en base Supabase (statut: "nouveau") ↓
-    Récupère les détails de la formule depuis Supabase ↓
-    Envoie le contexte à l'IA Groq (LLaMA 3.3 70B) ↓
-    L'IA génère un email personnalisé avec :
-        Détails de la formule choisie
-        Tarifs exacts
-        Rendus inclus
-        Options disponibles ↓
-    Email envoyé sur contact@beckfocus.fr avec :
-        Résumé de la demande
-        Brouillon IA
-        Bouton "Répondre au client" (mailto pré-rempli) ↓
-    Le photographe clique "Répondre", modifie si besoin, envoie ↓
-    Met à jour le statut dans le dashboard
+1. Le client remplit le formulaire sur **beckfocus.fr** ou envoie un DM Instagram
+2. Le Worker Cloudflare envoie les emails de notification et confirmation
+3. L'API reçoit la demande et la sauvegarde dans Supabase
+4. La formule choisie est récupérée depuis la base de données (tarifs inclus)
+5. L'IA Groq génère un email de réponse personnalisé
+6. Le brouillon est envoyé sur contact@beckfocus.fr avec un bouton **"Répondre au client"**
+7. Le photographe valide, modifie si besoin, et envoie
+8. Le statut est mis à jour dans le dashboard
 
 
 ---
 
 ## 🏗️ Architecture
 
-┌─────────────────────────────────────────────────────┐
-│                   CLIENTS                           │
-│  beckfocus.fr (formulaire) │ Instagram DM           │
-└──────────────┬─────────────────────┬────────────────┘
-               │                     │
-               ▼                     ▼
-┌─────────────────────┐   ┌─────────────────────┐
-│  Cloudflare Worker  │   │   Meta Webhook      │
-│  (JS, Edge)         │   │   (Instagram API)   │
-└──────────┬──────────┘   └──────────┬──────────┘
-           │                         │
-           └────────────┬────────────┘
-                        │
-                        ▼
-┌───────────────────────────────────────────────────┐
-│              API FastAPI (Python)                 │
-│              api.beckfocus.fr                     │
-│                                                   │
-│  Routes:                                          │
-│  POST /leads/          → Créer un lead            │
-│  GET  /leads/          → Lister (JWT)             │
-│  PATCH /leads/{id}     → Modifier statut (JWT)    │
-│  GET  /dashboard/      → Dashboard (JWT)          │
-│  POST /auth/login      → Authentification         │
-│  POST /webhooks/instagram → DM Instagram          │
-└──────┬──────────────────────┬─────────────────────┘
-       │                      │
-       ▼                      ▼
-┌─────────────┐      ┌────────────────┐
-│  Supabase   │      │   Groq API     │
-│  PostgreSQL │      │   LLaMA 3.3    │
-│             │      │   70B          │
-│  Tables:    │      └────────────────┘
-│  - leads    │               │
-│  - formules │               ▼
-└─────────────┘      ┌────────────────┐
-                     │    Resend      │
-                     │   (Emails)     │
-                     └────────────────┘
+**Canaux d'entrée**
+- beckfocus.fr → Cloudflare Worker → API
+- Instagram DM → Meta Webhook → API
 
+**API (FastAPI / Railway)**
+- Validation des données (Pydantic)
+- Authentification JWT
+- Orchestration des services
 
----
+**Services**
+- Supabase → stockage des leads et formules
+- Groq LLaMA → génération des emails IA
+- Resend → envoi des emails
 
 ## 🛠️ Stack technique et décisions
 
